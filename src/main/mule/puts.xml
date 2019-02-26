@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">	
+	<flow
+		name="put:\contacts\(contact_id)\addresses\(address_id):contacts-management-api-config">
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" doc:id="be4caba4-d51d-4ad3-a752-506a7bfdf41a">
+			<ee:variables>
+				<ee:set-variable variableName="contact_id"><![CDATA[attributes.uriParams.contact_id]]></ee:set-variable>
+				<ee:set-variable variableName="address_id"><![CDATA[attributes.uriParams.address_id]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:update doc:name="Update" doc:id="0f928ba4-5c96-4a5a-9416-6f9f8223c8f9" config-ref="Database_Config">
+			<db:sql >UPDATE address SET 
+
+type = :type, 
+number = :number
+street = :street,
+unit = :unit,
+city = :city,
+state = :state,
+zipcode = :zipcode
+where idaddress=:idaddress</db:sql>
+			<db:input-parameters ><![CDATA[#[{
+       "type ": payload."type",
+		"number": payload.number,
+		"street": payload.street,
+		"Unit": payload.unit,
+		"City": payload.City,
+		"State": payload.State,
+		"zipcode": payload.zipcode,
+		"idaddress" : vars.address_id
+}]]]></db:input-parameters>
+		</db:update>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+			xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="5da1108c-62ec-4e76-8f49-17dde3c328c0">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  address_id: vars.address_id,
+  message: "updated Successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow
+		name="put:\contacts\(contact_id)\communications\(communication_id):contacts-management-api-config">
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+			<ee:variables>
+				<ee:set-variable variableName="contact_id">attributes.uriParams.contact_id</ee:set-variable>
+				<ee:set-variable variableName="communication_id">attributes.uriParams.communication_id</ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:update doc:name="Update" doc:id="41d1d19f-5783-4dc9-9b53-f96370766ee5" config-ref="Database_Config">
+			<db:sql >UPDATE address SET
+type = :type, 
+value = :value
+preferred = :preferred,
+where idcommunication=:idcommunication</db:sql>
+			<db:input-parameters ><![CDATA[#[{
+       "type ": payload."type",
+		"value": payload."value",
+		"preferred": payload.preferred,
+	"idcommunication" : vars.communication_id
+}]]]></db:input-parameters>
+		</db:update>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+			xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="887efedf-6805-427d-8511-42f0c13bf4cd">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  communication_id: vars.communication_id ,
+  message: "updated Successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="put:\contacts\(contact_id):contacts-management-api-config">
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" doc:id="058ade9f-4d8e-431c-ab5c-84e0def01c19">
+			<ee:variables>
+				<ee:set-variable variableName="contact_id"><![CDATA[attributes.uriParams.contact_id]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:update doc:name="Update" doc:id="a023c3f7-0e29-45c3-8001-594791ed04d6" config-ref="Database_Config">
+			<db:sql>UPDATE Contacts SET 
+FirstName = :FirstName, 
+LastName = :LastName
+DOB = :DOB,
+Gender = :Gender,
+Title = :Title
+where idcontact=:iccontact</db:sql>
+			<db:input-parameters><![CDATA[   ]]></db:input-parameters>
+		</db:update>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+			xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="e0b45891-6b22-4ea1-b106-f8e51b5177d0">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  contact_id: vars.contact_id,
+  message: "updated Successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

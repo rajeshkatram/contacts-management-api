@@ -1,0 +1,18 @@
+[{
+		"type ": "home",
+		"number": 1234,
+		"street": "blah blah St",
+		"Unit": "1 a",
+		"City": "Somewhere",
+		"State": "WV",
+		"zipcode": "12345"
+	},
+  {
+		"type ": "residential",
+		"number": 1234,
+		"street": "blah blah St",
+		"Unit": "1 a",
+		"City": "Somewhere",
+		"State": "WV",
+		"zipcode": "12345"
+	}]

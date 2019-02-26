@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow
+		name="post:\contacts\(contact_id)\addresses:contacts-management-api-config">
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+			doc:id="9182c1ff-3537-4d65-811d-1ded4324cf45">
+			<ee:variables>
+				<ee:set-variable variableName="contact_id"><![CDATA[attributes.uriParams.contact_id
+				]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="insert_address" doc:id="be1c58aa-fd52-45ea-a900-da2bfdc52359"
+			name="insert_address" />
+		<logger level="INFO"
+			message="post:\contacts\(contact_id)\addresses:contacts-management-api-config" />
+	</flow>
+	<flow
+		name="post:\contacts\(contact_id)\communications:contacts-management-api-config">
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+			doc:id="8ac06096-e3fe-45c3-9547-09b91934b5d5">
+			<ee:variables>
+				<ee:set-variable variableName="contact_id"><![CDATA[attributes.uriParams.contact_id
+				]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="insert_communication" doc:id="16d33f6e-fd98-4d09-928e-5cdcd74362e9"
+			name="insert_communication" />
+		<logger level="INFO"
+			message="post:\contacts\(contact_id)\communications:contacts-management-api-config" />
+	</flow>
+	<flow name="post:\contacts:contacts-management-api-config">
+		<flow-ref doc:name="insert_contact" doc:id="4700d0b1-e63c-4a3e-b2b5-c21ba3dc16e8"
+			name="insert_contact" />
+	</flow>
+</mule>

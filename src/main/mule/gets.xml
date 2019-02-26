@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow
+		name="get:\contacts\(contact_id)\addresses:contacts-management-api-config">
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+			<ee:variables>
+				<ee:set-variable variableName="contact_id">attributes.uriParams.contact_id
+				</ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:select doc:name="Select" doc:id="a23589f1-6c0a-4b60-82a1-3a182095272e" config-ref="Database_Config">
+			<db:sql >select * from address 
+where idcontact=:idcontact</db:sql>
+			<db:input-parameters ><![CDATA[#[{
+idcontact : vars.contact_id
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+			xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="889d16fc-f87f-4ed5-a2f8-127aa45ac8b3">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload map(item,index) -> {
+		"id": item.idcommunication,
+ 		"type": item."type",
+  		value: item."value",
+  		preferred: item.preferred
+ }
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow
+		name="get:\contacts\(contact_id)\communications:contacts-management-api-config">
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" doc:id="e718f3cd-0011-4431-9506-d415395359b1">
+			<ee:variables>
+				<ee:set-variable variableName="contact_id"><![CDATA[attributes.uriParams.contact_id
+				]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:select doc:name="Select" doc:id="88c753f6-34a7-466c-8955-d84c8ba0ced1" config-ref="Database_Config">
+			<db:sql >select * from communication 
+where idcontact=:idcontact</db:sql>
+			<db:input-parameters ><![CDATA[#[{
+idcontact : vars.contact_id
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+			xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="bc342b26-7fee-463d-8411-35c510054e25">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload map(item,index) -> {
+ 		"id": item.idaddress,
+ 		"type ": item."type",
+		"number": item.number,
+		"street": item.street,
+		"Unit": item.unit,
+		"City": item.City,
+		"State": item.State,
+		"zipcode": item.zipcode
+ }]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="get:\contacts:contacts-management-api-config">
+		<db:select doc:name="Select" doc:id="e11b55bd-3e57-46df-9e0b-e00044fc381a" config-ref="Database_Config">
+			<db:sql >select c.IdContact,FirstName,LastName,DOB,Gender,Title,a.idaddress,a.type as addresstype,number,street,unit,city,state,zipcode,com.idcommunication,com.type as communicationtype,value,preferred from contacts c
+left  join address a on c.idcontact=a.idcontact
+left  join communication com on com.idcontact=c.idcontact</db:sql>
+		</db:select>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+			xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="7d6794a7-1e4b-4c35-b480-2be00ae25e5e">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+var x =payload groupBy(item) -> item.idContact
+---
+[
+    x mapObject (vl,ky,in) ->{
+            Identification:   {
+        "FirstName": vl[0].FirstName,
+		"LastName": vl[0].LastName,
+		"DOB": vl[0].DOB as Date {format: "yyyy-MM-dd"}
+    		as String {format: "MM/dd/yyyy"},
+		"Gender": vl[0].Gender,
+		"Title": vl[0].Title
+},
+Address : vl map(item,index) ->{
+        "type ": item.addresstype,
+		"number": item.number,
+		"street": item.street,
+		"Unit": item.unit,
+		"City": item.City,
+		"State": item.State,
+		"zipcode": item.zipcode
+        },
+Communication : vl map(item,index) ->{
+        "type ": item.communicationtype,
+		"value": item.number,		
+		(preferred: item.preferred) if(item.preferred != false) 
+        }
+    }
+]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow
+		name="get:\contacts\(contact_id)\addresses\(address_id):contacts-management-api-config">
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+			<ee:variables>
+				<ee:set-variable variableName="contact_id">attributes.uriParams.contact_id
+				</ee:set-variable>
+				<ee:set-variable variableName="address_id">attributes.uriParams.address_id
+				</ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:select doc:name="Select" doc:id="8ce8d1dc-3757-4396-8362-78a22aaa49f6" config-ref="Database_Config">
+			<db:sql >select * from address 
+where idcontact=:idcontact and idaddress=:idaddress</db:sql>
+			<db:input-parameters ><![CDATA[#[{
+idcontact : vars.contact_id,
+idaddress: vars.address_id
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+			xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="3b0df720-99ac-4419-bbd4-d84b8149a0f2">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "type ": payload."type",
+		"number": payload.number,
+		"street": payload.street,
+		"Unit": payload.unit,
+		"City": payload.City,
+		"State": payload.State,
+		"zipcode": payload.zipcode
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow
+		name="get:\contacts\(contact_id)\communications\(communication_id):contacts-management-api-config">
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" doc:id="1c61b4db-2116-4d6c-b9c0-2b44dad54bbd">
+			<ee:variables>
+				<ee:set-variable variableName="contact_id"><![CDATA[attributes.uriParams.contact_id
+				]]></ee:set-variable>
+				<ee:set-variable variableName="communication_id"><![CDATA[attributes.uriParams.communication_id
+				]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:select doc:name="Select" doc:id="b24204de-f79f-44fa-9830-eebe7d45e3b1" config-ref="Database_Config">
+			<db:sql >select * from communication
+where idcontact=:idcontact and idcommunication=:idcommunication</db:sql>
+			<db:input-parameters ><![CDATA[#[{
+idcontact : vars.contact_id,
+idcommunication: vars.communication_id
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+			xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="f22049b2-8a18-4bb5-a42f-c80ed8eb65e2">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "type": payload."type",
+  value: payload."value",
+  preferred: payload.preferred
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="get:\contacts\(contact_id):contacts-management-api-config">
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" doc:id="30f29b6a-cb34-4553-b1b2-b2bf9dfad370">
+			<ee:variables>
+				<ee:set-variable variableName="contact_id"><![CDATA[attributes.uriParams.contact_id
+				]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:select doc:name="Select" doc:id="7edfc5d4-44a4-47b0-9279-1ce9bd8bd236" config-ref="Database_Config">
+			<db:sql >select FirstName,LastName,DOB,Gender,Title,a.type as addresstype,number,street,unit,city,state,zipcode,com.type as communicationtype,value,preferred from contacts c
+join address a on c.idcontact=a.idcontact
+join communication com on com.idcontact=c.idcontact
+where c.idcontact=:contact_id</db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	contact_id: vars.contact_id
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+			xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="b8acc98f-9a70-417f-ae77-fb87af7f0e60">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    Identification:   {
+        "FirstName": payload[0].FirstName,
+		"LastName": payload[0].LastName,
+		"DOB": payload[0].DOB as Date {format: "yyyy-MM-dd"}
+    		as String {format: "MM/dd/yyyy"},
+		"Gender": payload[0].Gender,
+		"Title": payload[0].Title
+},
+Address : payload map(item,index) ->{
+        "type ": item.addresstype,
+		"number": item.number,
+		"street": item.street,
+		"Unit": item.unit,
+		"City": item.City,
+		"State": item.State,
+		"zipcode": item.zipcode
+        },
+Communication : payload map(item,index) ->{
+        "type ": item.communicationtype,
+		"value": item.number,
+		//"preferred": item.preferred
+		//"preferred": item.preferred
+		(preferred: item.preferred) if(item.preferred != false) 
+        }
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

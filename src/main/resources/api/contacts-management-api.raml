@@ -1,0 +1,123 @@
+#%RAML 1.0
+title: contacts-management-api
+version: v1
+baseUri: http://localhost:8081/api
+
+/contacts:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            example: !include examples/multiplecontacts.json
+  post:
+    body:
+      application/json: 
+          example : !include examples/contacts.json
+    responses:
+     201: 
+      body:
+        application/json:
+          example:  { contact_id : "8901",
+                     message: "Created Successfully" }
+  /{contact_id}:
+    uriParameters: 
+      contact_id: 
+        type: number
+        required: true
+    get:
+     responses:
+        200:
+          body:
+           application/json:
+              example: !include examples/contacts.json
+        
+    put:
+       body:
+         application/json: 
+             example : !include examples/contacts_update.json
+       responses:
+            201: 
+              body:
+                application/json:
+                  example:  { contact_id : "8901",
+                            message: "updated Successfully" }
+    delete:
+      responses:
+         200:
+           body:
+            application/json:
+               example: { contact_id : "8901",
+                          message: "Deleted Successfully" }
+    /addresses:
+      get:
+        responses:
+          200:
+            body:
+              application/json:
+                example: !include examples/multipleaddresses.json
+      post:
+      /{address_id}:
+        uriParameters: 
+          address_id: 
+            type: number
+            required: true
+        get:
+          responses:
+            200:
+              body:
+                application/json:
+                  example: !include examples/address.json
+        put:
+          body:
+            application/json: 
+                example : !include examples/address.json
+          responses:
+                201: 
+                  body:
+                    application/json:
+                      example:  { address_id : "8901",
+                                message: "updated Successfully" }
+        delete:
+          responses:
+            200:
+              body:
+                application/json:
+                  example: { address_id : "8901",
+                              message: "Deleted Successfully" }
+    /communications:
+      get:
+        responses:
+          200:
+            body:
+              application/json:
+                example: !include examples/multiplecommunication.json
+      post:
+      /{communication_id}:
+        uriParameters: 
+          communication_id: 
+           type: number
+           required: true
+        get:
+          responses:
+            200:
+              body:
+                application/json:
+                  example: !include examples/communication.json
+        put:
+          body:
+            application/json: 
+                example : !include examples/communication.json
+          responses:
+                201: 
+                  body:
+                    application/json:
+                      example:  { communication_id : "8901",
+                                message: "updated Successfully" }
+        delete:
+          responses:
+            200:
+              body:
+                application/json:
+                  example: { communication_id : "8901",
+                              message: "Deleted Successfully" }

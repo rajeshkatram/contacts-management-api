@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">	
+	<flow
+		name="delete:\contacts\(contact_id)\addresses\(address_id):contacts-management-api-config">
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+			<ee:variables>
+				<ee:set-variable variableName="contact_id">attributes.uriParams.contact_id
+				</ee:set-variable>
+				<ee:set-variable variableName="address_id">attributes.uriParams.address_id
+				</ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:delete doc:name="Delete" doc:id="b83f6af9-114f-4285-836a-1d0ef2676d17" config-ref="Database_Config">
+			<db:sql >delete from address
+where idcontact=:idcontact and idcommunication=:idcommunication</db:sql>
+			<db:input-parameters ><![CDATA[#[{
+idcontact : vars.contact_id,
+idcommunication: vars.communication_id
+}]]]></db:input-parameters>
+		</db:delete>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+			xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="5d62d98b-e155-4bf5-8ebd-f049de3f8244">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  address_id: vars.address_id,
+  message: "Deleted Successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow
+		name="delete:\contacts\(contact_id)\communications\(communication_id):contacts-management-api-config">
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+			<ee:variables>
+				<ee:set-variable variableName="contact_id">attributes.uriParams.contact_id
+				</ee:set-variable>
+				<ee:set-variable variableName="communication_id">attributes.uriParams.communication_id
+				</ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:delete doc:name="Delete" doc:id="e557387e-95e1-4e14-b8d8-8e9b7ad7421e" config-ref="Database_Config">
+			<db:sql >delete from communication
+where idcontact=:idcontact and idcommunication=:idcommunication</db:sql>
+			<db:input-parameters ><![CDATA[#[{
+idcontact : vars.contact_id,
+idcommunication: vars.communication_id
+}]]]></db:input-parameters>
+		</db:delete>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+			xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="34fcadcb-e8ad-4a74-8ccd-b490517f23fa">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  communication_id: vars.communication_id,
+  message: "Deleted Successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="delete:\contacts\(contact_id):contacts-management-api-config">
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+			<ee:variables>
+				<ee:set-variable variableName="contact_id">attributes.uriParams.contact_id
+				</ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:stored-procedure doc:name="Stored procedure" doc:id="3d00b693-b5d2-4ac9-9af6-d7a7d5fbc047" config-ref="Database_Config">
+			<db:sql >call sp_DELETE_Contact(:contact_id)</db:sql>
+			<db:input-parameters ><![CDATA[#[{
+idcontact : vars.contact_id
+}]]]></db:input-parameters>
+		</db:stored-procedure>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+			xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="4b10cc92-e9bb-437e-8c23-af35f1e446ef">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  contact_id: vars.contact_id,
+  message: "Deleted Successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="insert_communication" doc:id="e989ff42-f0f7-479c-bc77-b706c7f8aee3" >
+		<ee:transform doc:name="Transform Message" doc:id="5b7386b4-f297-4adf-b0f7-56588d1578eb">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+payload.Communication map (value,index) -> {
+		"type": value."type",
+        "value": value."value",
+		"preferred": value."preferred",		
+		"idcontact": vars.contact_id
+	}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+		<db:bulk-insert doc:name="Bulk insert Comunication" doc:id="6332e757-ffd3-4f80-8b10-d1ae4b646dfe" config-ref="Database_Config">
+					<db:sql>INSERT INTO communication
+         (
+           type                     , 
+           value                      , 
+           preferred ,
+           idcontact
+         )
+    VALUES 
+         ( 
+            :type                     , 
+           :value                      , 
+           :preferred                    , 
+          :idcontact
+         )</db:sql>
+				</db:bulk-insert>
+	</sub-flow>
+	<sub-flow name="insert_address" doc:id="4b432cb8-56f9-47d3-9b1c-5884aa013ae3" >
+		<ee:transform doc:name="Transform Message" doc:id="3d4307f7-11fa-4c7e-9b27-c9e18c11edd8">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+payload.Address map (value,index) -> {
+		"type": value."type",
+        "number": value."number",
+		"street": value."street",
+		"Unit": value."Unit",
+		"City": value."City",
+		"State": value."State",
+		"zipcode": value."zipcode",
+		"idcontact": vars.contact_id
+	}
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+		<db:bulk-insert doc:name="Bulk insert Address" doc:id="ae5af71a-35fe-48ea-a2da-f4c95a6fdea8" config-ref="Database_Config">
+					<db:sql>INSERT INTO address
+         (
+           type                     , 
+           number                      , 
+           street                    , 
+           City  ,
+           State,
+           zipcode,
+           idcontact
+         )
+    VALUES 
+         ( 
+            :type                     , 
+           :number                      , 
+           :street                    , 
+           :City  ,
+           :State,
+           :zipcode,
+          :idcontact
+         )</db:sql>
+				</db:bulk-insert>
+	</sub-flow>
+	<sub-flow name="insert_contact" doc:id="1eb8e84a-fcc9-4e66-82f3-67d62f1f9d67" >
+		<logger level="INFO" doc:name="Logger" doc:id="2c0440e5-fddc-4681-b61c-2ca6a8fedab8" />
+		<db:stored-procedure doc:name="Insert Contacts" doc:id="c47976e3-5aee-4670-ab6f-c61c5993b5ad" config-ref="Database_Config" target="contact_id" targetValue="#[payload.contact_id]">
+			<db:sql>call sp__INSERT_Contact(:Firstname,:Lastname,:DOB,:Gender,:Title,:contact_id)</db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	Firstname: payload.Identification.FirstName,
+	Lastname: payload.Identification.LastName,
+	DOB: payload.Identification.DOB as Date {format: "MM/dd/yyyy"}
+    as String {format: "yyyy-MM-dd"},
+	Gender: payload.Identification.Gender,
+	Title: payload.Identification.Title
+} ]]]></db:input-parameters>
+			<db:output-parameters>
+				<db:output-parameter key="contact_id" type="INTEGER" />
+			</db:output-parameters>
+		</db:stored-procedure>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="6fc81c3d-456d-43df-a7e3-10ac095e8a7f" >
+			<route>
+				<flow-ref doc:name="insert_address" doc:id="df2db94a-f7d8-41b3-a684-6c8c6e11a27d" name="insert_address" />
+			</route>
+			<route >
+				<flow-ref doc:name="insert_communication" doc:id="520e299d-819c-4294-a509-fbaa5020eae6" name="insert_communication" />
+			</route>
+		</scatter-gather>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="211ca289-ee95-41ec-a596-d499f70d85b5">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  contact_id: vars.contact_id,
+  message: "Created Successfully"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+	</sub-flow>
+</mule>

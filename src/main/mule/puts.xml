@@ -17,20 +17,19 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 		</ee:transform>
 		<db:update doc:name="Update" doc:id="0f928ba4-5c96-4a5a-9416-6f9f8223c8f9" config-ref="Database_Config">
 			<db:sql >UPDATE address SET 
-
-type = :type, 
-number = :number
+type= :type, 
+number = :number,
 street = :street,
-unit = :unit,
-city = :city,
-state = :state,
+unit = :Unit,
+city = :City,
+state = :State,
 zipcode = :zipcode
 where idaddress=:idaddress</db:sql>
 			<db:input-parameters ><![CDATA[#[{
-       "type ": payload."type",
+       "type": payload."type",
 		"number": payload.number,
 		"street": payload.street,
-		"Unit": payload.unit,
+		"Unit": payload.Unit,
 		"City": payload.City,
 		"State": payload.State,
 		"zipcode": payload.zipcode,
@@ -59,13 +58,13 @@ output application/json
 			</ee:variables>
 		</ee:transform>
 		<db:update doc:name="Update" doc:id="41d1d19f-5783-4dc9-9b53-f96370766ee5" config-ref="Database_Config">
-			<db:sql >UPDATE address SET
+			<db:sql >UPDATE communication SET
 type = :type, 
-value = :value
-preferred = :preferred,
+value = :value,
+preferred = :preferred
 where idcommunication=:idcommunication</db:sql>
 			<db:input-parameters ><![CDATA[#[{
-       "type ": payload."type",
+       "type": payload."type",
 		"value": payload."value",
 		"preferred": payload.preferred,
 	"idcommunication" : vars.communication_id
@@ -93,12 +92,22 @@ output application/json
 		<db:update doc:name="Update" doc:id="a023c3f7-0e29-45c3-8001-594791ed04d6" config-ref="Database_Config">
 			<db:sql>UPDATE Contacts SET 
 FirstName = :FirstName, 
-LastName = :LastName
+LastName = :LastName,
 DOB = :DOB,
 Gender = :Gender,
 Title = :Title
-where idcontact=:iccontact</db:sql>
-			<db:input-parameters><![CDATA[   ]]></db:input-parameters>
+where idcontact=:idcontact</db:sql>
+			<db:input-parameters><![CDATA[#[{
+
+		"FirstName": payload.FirstName,
+		"LastName": payload.LastName,
+		"DOB": payload.DOB as Date {format: "MM/dd/yyyy"}
+    as String {format: "yyyy-MM-dd"},
+		"Gender": payload.Gender,
+		"Title": payload.Title,
+		"idcontact": vars.contact_id
+	
+}]]]></db:input-parameters>
 		</db:update>
 		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
 			xsi:schemaLocation="

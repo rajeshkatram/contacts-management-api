@@ -9,20 +9,20 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">	
 	<flow
 		name="delete:\contacts\(contact_id)\addresses\(address_id):contacts-management-api-config">
-		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" doc:id="c14a4946-9e84-427c-b0f1-71feade8810e">
 			<ee:variables>
-				<ee:set-variable variableName="contact_id">attributes.uriParams.contact_id
-				</ee:set-variable>
-				<ee:set-variable variableName="address_id">attributes.uriParams.address_id
-				</ee:set-variable>
+				<ee:set-variable variableName="contact_id"><![CDATA[attributes.uriParams.contact_id
+				]]></ee:set-variable>
+				<ee:set-variable variableName="address_id"><![CDATA[attributes.uriParams.address_id
+				]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
 		<db:delete doc:name="Delete" doc:id="b83f6af9-114f-4285-836a-1d0ef2676d17" config-ref="Database_Config">
 			<db:sql >delete from address
-where idcontact=:idcontact and idcommunication=:idcommunication</db:sql>
+where idcontact=:idcontact and idaddress=:idaddress</db:sql>
 			<db:input-parameters ><![CDATA[#[{
 idcontact : vars.contact_id,
-idcommunication: vars.communication_id
+idaddress: vars.address_id
 }]]]></db:input-parameters>
 		</db:delete>
 		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
@@ -77,7 +77,7 @@ output application/json
 			</ee:variables>
 		</ee:transform>
 		<db:stored-procedure doc:name="Stored procedure" doc:id="3d00b693-b5d2-4ac9-9af6-d7a7d5fbc047" config-ref="Database_Config">
-			<db:sql >call sp_DELETE_Contact(:contact_id)</db:sql>
+			<db:sql >call sp_DELETE_Contact(:idcontact)</db:sql>
 			<db:input-parameters ><![CDATA[#[{
 idcontact : vars.contact_id
 }]]]></db:input-parameters>

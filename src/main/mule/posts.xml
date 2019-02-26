@@ -16,10 +16,34 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 				]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="0ea87043-4602-4701-aeae-2d34fd72a6aa" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload map (value,index) -> {
+		"type": value."type",
+        "number": value."number",
+		"street": value."street",
+		"Unit": value."Unit",
+		"City": value."City",
+		"State": value."State",
+		"zipcode": value."zipcode",
+		"idcontact": vars.contact_id
+	}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
 		<flow-ref doc:name="insert_address" doc:id="be1c58aa-fd52-45ea-a900-da2bfdc52359"
 			name="insert_address" />
-		<logger level="INFO"
-			message="post:\contacts\(contact_id)\addresses:contacts-management-api-config" />
+		<ee:transform doc:name="Transform Message" doc:id="932b9b86-a899-4014-a1b8-2991114e6cee" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{ message: "Created Successfully" }]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
 	</flow>
 	<flow
 		name="post:\contacts\(contact_id)\communications:contacts-management-api-config">
@@ -30,11 +54,31 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 				]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="5bbff023-582d-490e-8c20-2f8d89dadb8c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload map (value,index) -> {
+		"type": value."type",
+        "value": value."value",
+		"preferred": value."preferred",		
+		"idcontact": vars.contact_id
+	}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
 		<flow-ref doc:name="insert_communication" doc:id="16d33f6e-fd98-4d09-928e-5cdcd74362e9"
 			name="insert_communication" />
-		<logger level="INFO"
-			message="post:\contacts\(contact_id)\communications:contacts-management-api-config" />
-	</flow>
+		<ee:transform doc:name="Transform Message" doc:id="5435e114-065f-470a-a5ba-73f1213c2568" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{ message: "Created Successfully" }]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	
+</flow>
 	<flow name="post:\contacts:contacts-management-api-config">
 		<flow-ref doc:name="insert_contact" doc:id="4700d0b1-e63c-4a3e-b2b5-c21ba3dc16e8"
 			name="insert_contact" />

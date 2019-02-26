@@ -8,19 +8,6 @@
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<sub-flow name="insert_communication" doc:id="e989ff42-f0f7-479c-bc77-b706c7f8aee3" >
-		<ee:transform doc:name="Transform Message" doc:id="5b7386b4-f297-4adf-b0f7-56588d1578eb">
-					<ee:message>
-						<ee:set-payload><![CDATA[%dw 2.0
-output application/java
----
-payload.Communication map (value,index) -> {
-		"type": value."type",
-        "value": value."value",
-		"preferred": value."preferred",		
-		"idcontact": vars.contact_id
-	}]]></ee:set-payload>
-					</ee:message>
-				</ee:transform>
 		<db:bulk-insert doc:name="Bulk insert Comunication" doc:id="6332e757-ffd3-4f80-8b10-d1ae4b646dfe" config-ref="Database_Config">
 					<db:sql>INSERT INTO communication
          (
@@ -39,24 +26,6 @@ payload.Communication map (value,index) -> {
 				</db:bulk-insert>
 	</sub-flow>
 	<sub-flow name="insert_address" doc:id="4b432cb8-56f9-47d3-9b1c-5884aa013ae3" >
-		<ee:transform doc:name="Transform Message" doc:id="3d4307f7-11fa-4c7e-9b27-c9e18c11edd8">
-					<ee:message>
-						<ee:set-payload><![CDATA[%dw 2.0
-output application/java
----
-payload.Address map (value,index) -> {
-		"type": value."type",
-        "number": value."number",
-		"street": value."street",
-		"Unit": value."Unit",
-		"City": value."City",
-		"State": value."State",
-		"zipcode": value."zipcode",
-		"idcontact": vars.contact_id
-	}
-]]></ee:set-payload>
-					</ee:message>
-				</ee:transform>
 		<db:bulk-insert doc:name="Bulk insert Address" doc:id="ae5af71a-35fe-48ea-a2da-f4c95a6fdea8" config-ref="Database_Config">
 					<db:sql>INSERT INTO address
          (
@@ -98,9 +67,40 @@ payload.Address map (value,index) -> {
 		</db:stored-procedure>
 		<scatter-gather doc:name="Scatter-Gather" doc:id="6fc81c3d-456d-43df-a7e3-10ac095e8a7f" >
 			<route>
+				<ee:transform doc:name="Transform Message" doc:id="3d4307f7-11fa-4c7e-9b27-c9e18c11edd8">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+payload.Address map (value,index) -> {
+		"type": value."type",
+        "number": value."number",
+		"street": value."street",
+		"Unit": value."Unit",
+		"City": value."City",
+		"State": value."State",
+		"zipcode": value."zipcode",
+		"idcontact": vars.contact_id
+	}
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
 				<flow-ref doc:name="insert_address" doc:id="df2db94a-f7d8-41b3-a684-6c8c6e11a27d" name="insert_address" />
 			</route>
 			<route >
+				<ee:transform doc:name="Transform Message" doc:id="5b7386b4-f297-4adf-b0f7-56588d1578eb">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+payload.Communication map (value,index) -> {
+		"type": value."type",
+        "value": value."value",
+		"preferred": value."preferred",		
+		"idcontact": vars.contact_id
+	}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
 				<flow-ref doc:name="insert_communication" doc:id="520e299d-819c-4294-a509-fbaa5020eae6" name="insert_communication" />
 			</route>
 		</scatter-gather>

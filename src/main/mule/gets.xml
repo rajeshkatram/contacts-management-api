@@ -29,12 +29,16 @@ idcontact : vars.contact_id
 output application/json
 ---
 payload map(item,index) -> {
-		"id": item.idcommunication,
- 		"type": item."type",
-  		value: item."value",
-  		preferred: item.preferred
+ 		"id": item.idaddress,
+ 		"type ": item."type",
+		"number": item.number,
+		"street": item.street,
+		"Unit": item.unit,
+		"City": item.City,
+		"State": item.State,
+		"zipcode": item.zipcode
  }
-]]></ee:set-payload>
+ ]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 	</flow>
@@ -59,15 +63,11 @@ idcontact : vars.contact_id
 				<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
-payload map(item,index) -> {
- 		"id": item.idaddress,
- 		"type ": item."type",
-		"number": item.number,
-		"street": item.street,
-		"Unit": item.unit,
-		"City": item.City,
-		"State": item.State,
-		"zipcode": item.zipcode
+ payload map(item,index) -> {
+		"id": item.idcommunication,
+ 		"type": item."type",
+  		value: item."value",
+  		preferred: item.preferred
  }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
@@ -139,13 +139,13 @@ idaddress: vars.address_id
 output application/json
 ---
 {
-  "type ": payload."type",
-		"number": payload.number,
-		"street": payload.street,
-		"Unit": payload.unit,
-		"City": payload.City,
-		"State": payload.State,
-		"zipcode": payload.zipcode
+  "type ": payload[0]."type",
+		"number": payload[0].number,
+		"street": payload[0].street,
+		"Unit": payload[0].unit,
+		"City": payload[0].City,
+		"State": payload[0].State,
+		"zipcode": payload[0].zipcode
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
@@ -175,9 +175,9 @@ idcommunication: vars.communication_id
 output application/json
 ---
 {
-  "type": payload."type",
-  value: payload."value",
-  preferred: payload.preferred
+  "type": payload[0]."type",
+  value: payload[0]."value",
+  preferred: payload[0].preferred
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
